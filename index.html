@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>平森先生の経営教室：離患率特別講義</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #f8fafc; /* Slate 50 */
+            color: #1e293b; /* Slate 800 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        .step-card {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease;
+        }
+        .step-card:hover {
+            transform: translateY(-2px);
+        }
+        .highlight-text {
+            background: linear-gradient(120deg, #fef3c7 0%, #fef3c7 100%);
+            background-repeat: no-repeat;
+            background-size: 100% 40%;
+            background-position: 0 88%;
+        }
+        /* New Visit Counter Visuals */
+        .visit-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .visit-dot.active {
+            background-color: #3b82f6;
+            color: white;
+            transform: scale(1.1);
+        }
+        .visit-dot.inactive {
+            background-color: #e2e8f0;
+            color: #94a3b8;
+        }
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #f59e0b;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #f59e0b;
+        }
+    </style>
+    <!-- Chosen Palette: Trustworthy Navy & Profit Gold -->
+
+    <!-- Application Structure Plan:
+         1. Header: Intro.
+         2. Sticky Nav: Quick jumps.
+         3. Step 1 (Diagnosis): Receipt visualization (Same).
+         4. Step 2 (The Logic): *CHANGED* Fixed toggle 10% vs 20%. Replaced "Gauge" with "Visit Count" visualization.
+         5. Step 3 (LTV): *CHANGED* Linked to the toggle state.
+         6. Step 4 (The Bucket): *CHANGED* Simplified text explanation.
+         7. Step 5 (Impact): *CHANGED* Added concrete financial table.
+         8. Footer: Simple copyright.
+    -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="antialiased">
+
+    <!-- Header Section -->
+    <header class="bg-slate-900 text-white py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="inline-block bg-amber-500 text-slate-900 text-sm font-bold px-3 py-1 rounded-full mb-4">
+                平森先生の経営教室
+            </div>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 leading-tight">
+                なぜ<span class="text-amber-400">離患率を半分</span>にすると、<br>売上は<span class="text-amber-400">2倍</span>になるのか？
+            </h1>
+            <p class="text-lg text-slate-300 max-w-2xl mx-auto mb-8">
+                「集客を一切増やさなくても、売上を2倍にする方法」があります。<br>
+                数字が苦手な先生でも分かる「バケツ」と「平均継続期間」の話。
+            </p>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur shadow-sm border-b border-slate-200">
+        <div class="max-w-6xl mx-auto px-4 overflow-x-auto">
+            <div class="flex space-x-8 min-w-max py-4 text-sm font-medium">
+                <a href="#step1" class="text-slate-600 hover:text-blue-900 transition-colors">Step 1: 現状把握</a>
+                <a href="#step2" class="text-slate-600 hover:text-blue-900 transition-colors">Step 2: 魔法の計算式</a>
+                <a href="#step3" class="text-slate-600 hover:text-blue-900 transition-colors">Step 3: LTVの正体</a>
+                <a href="#step4" class="text-slate-600 hover:text-blue-900 transition-colors">Step 4: バケツの穴</a>
+                <a href="#step5" class="text-slate-600 hover:text-blue-900 transition-colors">Step 5: 3年後の衝撃</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-4 py-8 space-y-24">
+
+        <!-- Introduction Block -->
+        <section class="prose prose-lg mx-auto text-slate-600 bg-blue-50 p-8 rounded-2xl border-l-4 border-blue-900">
+            <p class="font-bold text-blue-900 text-xl mb-4">先生、毎日集客お疲れ様です。</p>
+            <p>
+                「もっと新規を呼ばなきゃ売上が上がらない」<br>
+                そう思って、チラシ配りやSNS更新に追われていませんか？
+            </p>
+            <p>
+                実は、集客を一切増やさなくても、利益を劇的に残す方法があります。<br>
+                今日はその秘密を、難しい数式抜きで解説します。
+            </p>
+        </section>
+
+        <!-- Step 1: Current Situation -->
+        <section id="step1" class="scroll-mt-24">
+            <div class="mb-6">
+                <span class="text-blue-900 font-bold tracking-wider text-sm uppercase">Step 1</span>
+                <h2 class="text-3xl font-bold text-slate-900 mt-2">まずは現状把握（カルテ1枚の重み）</h2>
+            </div>
+
+            <div class="step-card p-6 md:p-8">
+                <p class="mb-6 text-lg">
+                    先生の院が今、<span class="font-bold">年間売上1,200万円（月商100万円）</span>だとしましょう。<br>
+                    単価1万円なら、月に「100枚」のカルテが動いています。
+                </p>
+
+                <div class="bg-slate-100 p-6 rounded-xl text-center mb-6">
+                    <h3 class="font-bold text-slate-700 mb-4">レジ横に積み上がる伝票の山（イメージ）</h3>
+                    <div class="grid grid-cols-10 gap-1 max-w-sm mx-auto opacity-80" id="receipt-grid">
+                        <!-- JS will populate 100 small divs representing receipts -->
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2">1マス = 1万円の伝票（計100枚）</p>
+                </div>
+
+                <div class="flex items-start gap-4 bg-white border border-slate-200 p-4 rounded-lg">
+                    <div class="text-3xl">🧾</div>
+                    <div>
+                        <p class="font-bold text-slate-800">これは「100人」ではありません。</p>
+                        <p class="text-sm text-slate-600">
+                            同じ人が月に数回来たり、新規が来たり...その合計が100回、レジが打たれたということです。
+                            この「100回の積み重ね」が、先生の生活を支えています。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 2: The Logic (Toggle Interaction) -->
+        <section id="step2" class="scroll-mt-24">
+            <div class="mb-6">
+                <span class="text-blue-900 font-bold tracking-wider text-sm uppercase">Step 2</span>
+                <h2 class="text-3xl font-bold text-slate-900 mt-2">魔法の計算式「100% ÷ 離患率」</h2>
+            </div>
+
+            <div class="step-card p-6 md:p-8 border-2 border-blue-100">
+                <p class="mb-4 text-lg">
+                    <span class="highlight-text">「離患率（りかんりつ）」</span>とは、「その月に何人が卒業（脱落）するか」という確率です。<br>
+                    これを「100%」で割ると、患者さんの<strong>「平均継続期間（平均通院回数）」</strong>が出せます。
+                </p>
+
+                <!-- Toggle Simulator Area -->
+                <div class="bg-slate-800 text-white p-6 rounded-xl shadow-inner mt-8">
+                    <h3 class="text-amber-400 font-bold text-lg mb-6 flex items-center gap-2">
+                        <span>🎛️</span> 離患率シミュレーター
+                    </h3>
+
+                    <!-- Toggle Button -->
+                    <div class="flex justify-center mb-8">
+                        <div class="bg-slate-700 p-1 rounded-lg inline-flex relative">
+                            <button id="btn-20" class="px-6 py-2 rounded-md text-sm font-bold transition-all duration-300 bg-slate-500 text-slate-200" onclick="setScenario(20)">
+                                現状 (20%)
+                            </button>
+                            <button id="btn-10" class="px-6 py-2 rounded-md text-sm font-bold transition-all duration-300 text-slate-300 hover:text-white" onclick="setScenario(10)">
+                                改善後 (10%)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                        <div class="text-center">
+                            <p class="text-sm text-slate-400 mb-1">現在の設定</p>
+                            <p class="text-4xl font-bold text-white"><span id="churnValueDisplay">20</span>%</p>
+                            <p class="text-sm text-red-300 mt-2" id="churnDesc">5人に1人が辞める</p>
+                        </div>
+                        <div class="text-center bg-white/10 p-4 rounded-lg backdrop-blur-sm border border-white/10">
+                            <p class="text-sm text-amber-200 mb-1">平均継続期間</p>
+                            <p class="text-3xl font-bold text-white">
+                                <span id="durationDisplay">5.0</span> <span class="text-base font-normal">回</span>
+                            </p>
+                            <p class="text-xs text-slate-300 mt-1">計算式: 100 ÷ <span id="churnCalcVal">20</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visual: Visit Count (Stamps) -->
+                <div class="mt-8">
+                    <h4 class="font-bold text-slate-700 mb-2">平均継続期間のイメージ</h4>
+                    <p class="text-sm text-slate-500 mb-4">平均して何回通ってくれるか？を表しています。</p>
+
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <div id="visit-container" class="flex flex-wrap gap-2">
+                            <!-- JS generates dots -->
+                        </div>
+                        <p class="text-right text-xs text-slate-500 mt-2" id="visit-text">
+                            5回目で終了してしまいます。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 3: LTV (The Money Bag) -->
+        <section id="step3" class="scroll-mt-24">
+            <div class="mb-6">
+                <span class="text-blue-900 font-bold tracking-wider text-sm uppercase">Step 3</span>
+                <h2 class="text-3xl font-bold text-slate-900 mt-2">LTV（1人の価値）の正体</h2>
+            </div>
+
+            <div class="step-card p-6 md:p-8">
+                <p class="mb-6 text-lg">
+                    平均継続期間が分かれば、患者さん1人が生涯で落としてくれる金額（LTV）が分かります。<br>
+                    単価1万円で計算してみましょう。
+                </p>
+
+                <div class="flex flex-col md:flex-row gap-8 justify-center items-center py-8">
+                    <!-- Dynamic Bag Visualization -->
+                    <div class="text-center transition-all duration-500 transform" id="moneyBagContainer">
+                        <div class="text-6xl mb-2">💰</div>
+                        <div class="font-bold text-2xl text-slate-800">
+                            <span id="ltvDisplay">5</span>万円
+                        </div>
+                        <p class="text-sm text-slate-500">あなたの院の1人あたりの価値</p>
+                    </div>
+
+                    <div class="hidden md:block text-slate-300 text-4xl">➡</div>
+
+                    <!-- Comparison Box -->
+                    <div class="bg-blue-50 border border-blue-200 p-6 rounded-xl max-w-sm w-full">
+                        <h4 class="font-bold text-blue-900 mb-2">比較まとめ</h4>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between items-center pb-2 border-b border-blue-100">
+                                <span class="text-slate-600">離患率 20% の場合</span>
+                                <span class="font-bold">LTV 5万円</span>
+                            </div>
+                            <div class="flex justify-between items-center text-amber-700 bg-amber-50 p-2 rounded">
+                                <span>離患率 10% の場合</span>
+                                <span class="font-bold text-lg">LTV 10万円</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-blue-800 mt-3 font-medium text-center">
+                            離患率を半分にするだけで、<br>1人から頂ける金額は2倍になります！
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 4: The Bucket (Simplified) -->
+        <section id="step4" class="scroll-mt-24">
+            <div class="mb-6">
+                <span class="text-blue-900 font-bold tracking-wider text-sm uppercase">Step 4</span>
+                <h2 class="text-3xl font-bold text-slate-900 mt-2">バケツの穴と「天井」の話</h2>
+            </div>
+
+            <div class="step-card p-6 md:p-8">
+                <p class="mb-6 text-lg">
+                    数字が苦手な先生でも、これなら分かります。<br>
+                    毎月、頑張って<strong>新規客を20人</strong>集めているとしましょう。
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <!-- Scenario A -->
+                    <div class="bg-slate-50 p-6 rounded-lg border-l-4 border-red-400">
+                        <h3 class="font-bold text-lg text-slate-800 mb-4">今の状態（離患率20%）</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center text-blue-600">
+                                <span>① 入ってくる人</span>
+                                <span class="font-bold">+20人</span>
+                            </div>
+                            <div class="flex justify-between items-center text-red-500">
+                                <span>② 辞めていく人</span>
+                                <span class="font-bold">-20人</span>
+                            </div>
+                            <div class="border-t border-slate-300 pt-2 flex justify-between items-center font-bold text-slate-800 text-lg">
+                                <span>残る人</span>
+                                <span>0人</span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-500 mt-3">
+                            これでは、何年やっても患者数は増えません。<br>
+                            ここが売上の「天井」です。
+                        </p>
+                    </div>
+
+                    <!-- Scenario B -->
+                    <div class="bg-amber-50 p-6 rounded-lg border-l-4 border-amber-400">
+                        <h3 class="font-bold text-lg text-slate-800 mb-4">改善後（離患率10%）</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center text-blue-600">
+                                <span>① 入ってくる人</span>
+                                <span class="font-bold">+20人</span>
+                            </div>
+                            <div class="flex justify-between items-center text-red-500">
+                                <span>② 辞めていく人</span>
+                                <span class="font-bold text-amber-600">-10人</span>
+                            </div>
+                            <div class="border-t border-amber-300 pt-2 flex justify-between items-center font-bold text-slate-800 text-lg">
+                                <span>残る人</span>
+                                <span class="text-amber-600">+10人</span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-500 mt-3">
+                            <strong>毎月10人ずつ、患者さんが積み上がります。</strong><br>
+                            1年後には、カルテ枚数が劇的に増えています。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="bucketChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 5: Financial Impact (Concrete Numbers) -->
+        <section id="step5" class="scroll-mt-24">
+            <div class="mb-6">
+                <span class="text-blue-900 font-bold tracking-wider text-sm uppercase">Step 5</span>
+                <h2 class="text-3xl font-bold text-slate-900 mt-2">3年後の衝撃（家一軒分の差）</h2>
+            </div>
+
+            <div class="step-card p-6 md:p-8 border-2 border-amber-400 relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-amber-400 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+                    PROFIT SIMULATION
+                </div>
+
+                <p class="mb-6 text-lg">
+                    「離患率10% vs 20%」<br>
+                    たったこれだけの違いで、3年後にはどれくらいの金額差になるか計算しました。
+                </p>
+
+                <!-- Financial Table -->
+                <div class="overflow-x-auto mb-8">
+                    <table class="w-full text-sm text-left text-slate-600">
+                        <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                            <tr>
+                                <th class="px-6 py-3 rounded-tl-lg">期間</th>
+                                <th class="px-6 py-3">現状の売上推移</th>
+                                <th class="px-6 py-3 bg-amber-50 text-amber-800">改善後の売上推移</th>
+                                <th class="px-6 py-3 rounded-tr-lg font-bold text-red-600">差額（機会損失）</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-white border-b">
+                                <td class="px-6 py-4 font-bold">1年目</td>
+                                <td class="px-6 py-4">1,200万円 (横ばい)</td>
+                                <td class="px-6 py-4 bg-amber-50 font-bold">1,750万円</td>
+                                <td class="px-6 py-4 text-red-600 font-bold">+550万円</td>
+                            </tr>
+                            <tr class="bg-white border-b">
+                                <td class="px-6 py-4 font-bold">2年目</td>
+                                <td class="px-6 py-4">1,200万円 (横ばい)</td>
+                                <td class="px-6 py-4 bg-amber-50 font-bold">2,142万円</td>
+                                <td class="px-6 py-4 text-red-600 font-bold">+942万円</td>
+                            </tr>
+                            <tr class="bg-white">
+                                <td class="px-6 py-4 font-bold">3年目</td>
+                                <td class="px-6 py-4">1,200万円 (横ばい)</td>
+                                <td class="px-6 py-4 bg-amber-50 font-bold">2,398万円</td>
+                                <td class="px-6 py-4 text-red-600 font-bold">+1,198万円</td>
+                            </tr>
+                            <tr class="bg-slate-900 text-white">
+                                <td class="px-6 py-4 font-bold text-base">3年間の合計</td>
+                                <td class="px-6 py-4">3,600万円</td>
+                                <td class="px-6 py-4 text-amber-400 font-bold text-lg">6,290万円</td>
+                                <td class="px-6 py-4 text-amber-400 font-bold text-lg">+2,690万円</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="impactChart"></canvas>
+                </div>
+
+                <div class="mt-8 bg-amber-50 p-6 rounded-xl text-center border border-amber-200">
+                    <p class="text-slate-600 font-bold mb-2">3年間の累積差額</p>
+                    <p class="text-4xl md:text-5xl font-black text-amber-600 drop-shadow-sm">
+                        + 2,690<span class="text-2xl text-amber-700">万円</span>
+                    </p>
+                    <p class="text-sm text-slate-500 mt-4">
+                        地方なら立派な一軒家が買えます。<br>
+                        集客を増やさなくても、離患率を下げるだけでこれだけの利益が残るのです。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-100 text-slate-500 text-center py-8 text-sm mt-12 border-t border-slate-200">
+        <p>&copy; 平森先生の経営教室 | All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // --- Initialization & Data ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initReceiptGrid();
+            setScenario(20); // Default to current state (20%)
+            initCharts();
+        });
+
+        // --- Step 1: Receipt Grid ---
+        function initReceiptGrid() {
+            const grid = document.getElementById('receipt-grid');
+            grid.innerHTML = '';
+            for (let i = 0; i < 100; i++) {
+                const div = document.createElement('div');
+                div.className = 'bg-blue-200 w-full pt-[100%] rounded-sm border border-blue-300';
+                grid.appendChild(div);
+            }
+        }
+
+        // --- Step 2 & 3: Logic (Fixed Scenario Toggle) ---
+        let currentChurn = 20;
+
+        const churnDisplay = document.getElementById('churnValueDisplay');
+        const churnDesc = document.getElementById('churnDesc');
+        const churnCalcVal = document.getElementById('churnCalcVal');
+        const durationDisplay = document.getElementById('durationDisplay');
+        const ltvDisplay = document.getElementById('ltvDisplay');
+        const moneyBag = document.getElementById('moneyBagContainer');
+        const visitContainer = document.getElementById('visit-container');
+        const visitText = document.getElementById('visit-text');
+
+        const btn20 = document.getElementById('btn-20');
+        const btn10 = document.getElementById('btn-10');
+
+        function setScenario(churnRate) {
+            currentChurn = churnRate;
+
+            // Toggle Button Styles
+            if (churnRate === 20) {
+                btn20.className = "px-6 py-2 rounded-md text-sm font-bold transition-all duration-300 bg-amber-500 text-white shadow-lg";
+                btn10.className = "px-6 py-2 rounded-md text-sm font-bold transition-all duration-300 text-slate-400 hover:text-white";
+                churnDesc.textContent = "5人に1人が辞める（現状）";
+                churnDesc.className = "text-sm text-red-300 mt-2";
+            } else {
+                btn10.className = "px-6 py-2 rounded-md text-sm font-bold transition-all duration-300 bg-amber-500 text-white shadow-lg";
+                btn20.className = "px-6 py-2 rounded-md text-sm font-bold transition-all duration-300 text-slate-400 hover:text-white";
+                churnDesc.textContent = "10人に1人が辞める（改善後）";
+                churnDesc.className = "text-sm text-amber-300 mt-2";
+            }
+
+            // Update Numbers
+            churnDisplay.textContent = churnRate;
+            churnCalcVal.textContent = churnRate;
+
+            const duration = (100 / churnRate).toFixed(0); // 5 or 10
+            durationDisplay.textContent = duration;
+
+            const ltv = Math.round(1 * duration);
+            ltvDisplay.textContent = ltv;
+
+            // Update Visuals
+            updateVisitVisuals(parseInt(duration));
+            updateMoneyBag(ltv);
+        }
+
+        function updateVisitVisuals(duration) {
+            visitContainer.innerHTML = '';
+
+            // Create dots for the duration
+            for(let i=1; i<=duration; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'visit-dot bg-blue-500 text-white';
+                dot.textContent = i;
+                visitContainer.appendChild(dot);
+            }
+
+            // Add a "Stop" sign
+            const stop = document.createElement('div');
+            stop.className = 'visit-dot bg-red-400 text-white font-bold';
+            stop.textContent = '✕';
+            visitContainer.appendChild(stop);
+
+            if(duration === 5) {
+                visitText.textContent = "平均5回通って、そこで終わってしまいます。";
+            } else {
+                visitText.innerHTML = "平均<span class='text-amber-600 font-bold'>10回</span>まで継続します！";
+            }
+        }
+
+        function updateMoneyBag(ltv) {
+            // Scale bag size based on LTV
+            const scaleFactor = ltv === 10 ? 1.3 : 1.0;
+
+            const iconDiv = moneyBag.querySelector('.text-6xl');
+            iconDiv.style.transform = `scale(${scaleFactor})`;
+
+            if (ltv >= 10) {
+                moneyBag.querySelector('.text-slate-800').classList.add('text-amber-600');
+                moneyBag.querySelector('.text-6xl').textContent = '💰';
+            } else {
+                moneyBag.querySelector('.text-slate-800').classList.remove('text-amber-600');
+                moneyBag.querySelector('.text-6xl').textContent = '💸';
+            }
+        }
+
+        // --- Step 4 & 5: Chart.js Logic ---
+        function initCharts() {
+            setupBucketChart();
+            setupImpactChart();
+        }
+
+        // Projection Helper
+        function calculateProjection(months, startStock, newPerMonth, churnRate) {
+            let data = [startStock];
+            let current = startStock;
+            for (let i = 0; i < months; i++) {
+                let churned = current * churnRate;
+                current = current - churned + newPerMonth;
+                data.push(Math.round(current));
+            }
+            return data;
+        }
+
+        function setupBucketChart() {
+            const ctx = document.getElementById('bucketChart').getContext('2d');
+
+            const labels = ['Start', '1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+            const dataHighChurn = Array(13).fill(100);
+            const dataLowChurn = calculateProjection(12, 100, 20, 0.10);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '改善後 (離患率 10%)',
+                            data: dataLowChurn,
+                            borderColor: '#eab308',
+                            backgroundColor: 'rgba(234, 179, 8, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: '現状 (離患率 20%)',
+                            data: dataHighChurn,
+                            borderColor: '#94a3b8',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            tension: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + '枚';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 80,
+                            title: { display: true, text: '月間カルテ枚数' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function setupImpactChart() {
+            const ctx = document.getElementById('impactChart').getContext('2d');
+
+            // 3 Years simulation for the specific numbers in the prompt
+            // Year 1: +550, Year 2: +942, Year 3: +1198. Total +2690.
+            // We'll plot cumulative difference to show the "stacking" wealth.
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['1年目', '2年目', '3年目'],
+                    datasets: [
+                        {
+                            label: '離患率を下げることで増える利益（累積）',
+                            data: [550, 1492, 2690], // Cumulative: 550, 550+942=1492, 1492+1198=2690
+                            backgroundColor: [
+                                'rgba(234, 179, 8, 0.6)',
+                                'rgba(234, 179, 8, 0.8)',
+                                'rgba(234, 179, 8, 1)'
+                            ],
+                            borderColor: '#d97706',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '累積増益: +' + context.parsed.y + '万円';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: { display: true, text: '累積利益 (万円)' }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
