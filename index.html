@@ -192,7 +192,7 @@
             <div class="step-card p-6 md:p-8 border-2 border-blue-100">
                 <p class="mb-4 text-lg">
                     <span class="highlight-text">「離患率（りかんりつ）」</span>とは、「その月に何人が卒業（脱落）するか」という確率です。<br>
-                    これを「100%」で割ると、患者さんの<strong>「平均継続期間（平均通院回数）」</strong>が出せます。
+                    これを「100%」で割ると、患者さんの<strong>「平均継続期間（平均通院月数）」</strong>が出せます。
                 </p>
 
                 <!-- Toggle Simulator Area -->
@@ -222,7 +222,7 @@
                         <div class="text-center bg-white/10 p-4 rounded-lg backdrop-blur-sm border border-white/10">
                             <p class="text-sm text-amber-200 mb-1">平均継続期間</p>
                             <p class="text-3xl font-bold text-white">
-                                <span id="durationDisplay">5.0</span> <span class="text-base font-normal">回</span>
+                                <span id="durationDisplay">5.0</span> <span class="text-base font-normal">か月</span>
                             </p>
                             <p class="text-xs text-slate-300 mt-1">計算式: 100 ÷ <span id="churnCalcVal">20</span></p>
                         </div>
@@ -232,7 +232,7 @@
                 <!-- Visual: Visit Count (Stamps) -->
                 <div class="mt-8">
                     <h4 class="font-bold text-slate-700 mb-2">平均継続期間のイメージ</h4>
-                    <p class="text-sm text-slate-500 mb-4">平均して何回通ってくれるか？を表しています。</p>
+                    <p class="text-sm text-slate-500 mb-4">平均して何か月通ってくれるか？を表しています。</p>
 
                     <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
                         <div id="visit-container" class="flex flex-wrap gap-2">
@@ -522,9 +522,9 @@
             visitContainer.appendChild(stop);
 
             if(duration === 5) {
-                visitText.textContent = "平均5回通って、そこで終わってしまいます。";
+                visitText.textContent = "平均5か月通って、そこで終わってしまいます。";
             } else {
-                visitText.innerHTML = "平均<span class='text-amber-600 font-bold'>10回</span>まで継続します！";
+                visitText.innerHTML = "平均<span class='text-amber-600 font-bold'>10か月</span>まで継続します！";
             }
         }
 
